@@ -1,8 +1,11 @@
+import { list } from './list';
+import { add } from './add';
 import packageJson from '../package.json';
 import inquirer from 'inquirer';
 import { createWriteStream, readdir } from 'fs';
 import { promisify } from 'util';
 import colors from 'colors';
+
 
 colors.enable();
 const readDir = promisify(readdir);
@@ -15,6 +18,7 @@ const readDir = promisify(readdir);
     try {
         await printWelcome();
         const command = await chooseCommands();
+        await execCommands(command);
     } catch(error) {
         console.error('%s', error);
     }
@@ -28,6 +32,7 @@ const readDir = promisify(readdir);
     const contents = await readDir(__dirname, { withFileTypes: true });
     const files = contents
       .filter((p) => p.isFile())
+      .filter((p) => p.name !== 'index.js')
       .map((p) => p.name.replace('.js', ' '));
   
     return files;
@@ -42,7 +47,7 @@ const chooseCommands = async () => {
     const { chooseCommands } = await inquirer.prompt([
       {
         type: "list",
-        name: "chooseCommand",
+        name: "chooseCommands",
         message: "Please select what you want to do",
         choices: [...files, new inquirer.Separator()],
       },
@@ -50,6 +55,18 @@ const chooseCommands = async () => {
   
     return chooseCommands;
   };
+
+/**
+ * @method execCommand
+ * @description do a command.
+ */
+const execCommands = async (command: string) => {
+  if(command.toLowerCase().includes('list')) {
+    list();
+  } else {
+    console.log('EH CIA');
+  }
+};
 
 const printWelcome = async () => {
 await console.log(String.raw`
